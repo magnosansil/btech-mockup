@@ -13,19 +13,87 @@ function goToMainSlide(index) {
     if (dots[i]) dots[i].classList.add('active');
 
     slides.forEach(s => s.classList.remove('active'));
-    if (slides[i]) slides[i].classList.add('active');
+    if (slides[i]) {
+        slides[i].classList.add('active');
+        slides[i].scrollTop = 0;
+    }
+}
+
+function isVerticallyScrollable(el) {
+    if (!el || !(el instanceof Element)) return false;
+    return el.scrollHeight > el.clientHeight + 2;
+}
+
+/** Evita trocar slide enquanto o usuário rola legenda, área do slide etc. */
+function wheelShouldChangeSlide(e) {
+    let t = e.target;
+    while (t && t !== document.documentElement) {
+        if (t.classList && t.classList.contains('caption-scroll') && isVerticallyScrollable(t)) {
+            const top = t.scrollTop <= 0;
+            const bot = t.scrollTop + t.clientHeight >= t.scrollHeight - 2;
+            if ((e.deltaY < 0 && !top) || (e.deltaY > 0 && !bot)) return false;
+        }
+        if (t.classList && t.classList.contains('main-slide') && isVerticallyScrollable(t)) {
+            const top = t.scrollTop <= 0;
+            const bot = t.scrollTop + t.clientHeight >= t.scrollHeight - 2;
+            if ((e.deltaY < 0 && !top) || (e.deltaY > 0 && !bot)) return false;
+        }
+        t = t.parentElement;
+    }
+    return true;
 }
 
 // Navegação por Scroll e Teclas
-window.addEventListener('wheel', (e) => {
-    if (e.deltaY > 0 && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
-    if (e.deltaY < 0 && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
-});
+window.addEventListener(
+    'wheel',
+    (e) => {
+        if (!wheelShouldChangeSlide(e)) return;
+        if (e.deltaY > 0 && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
+        if (e.deltaY < 0 && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
+    },
+    { passive: true }
+);
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
     if (e.key === 'ArrowLeft' && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
 });
+
+// Deslize horizontal no deck (não interfere com o carrossel do mock Instagram)
+(function initMainDeckSwipe() {
+    if (!slider) return;
+    let startX = 0;
+    let startY = 0;
+    const minDx = 56;
+    const maxAngle = 1.15;
+
+    slider.addEventListener(
+        'touchstart',
+        (e) => {
+            if (e.target.closest && e.target.closest('.insta-carousel')) return;
+            const t = e.touches[0] || e.changedTouches[0];
+            if (!t) return;
+            startX = t.clientX;
+            startY = t.clientY;
+        },
+        { passive: true }
+    );
+
+    slider.addEventListener(
+        'touchend',
+        (e) => {
+            if (e.target.closest && e.target.closest('.insta-carousel')) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - startX;
+            const dy = t.clientY - startY;
+            if (Math.abs(dy) * maxAngle > Math.abs(dx)) return;
+            if (Math.abs(dx) < minDx) return;
+            if (dx < 0 && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
+            if (dx > 0 && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
+        },
+        { passive: true }
+    );
+})();
 
 // Carrossel Instagram: dots, arrastar, avanço/retrocesso sem loop no fim
 (function initInstaCarousel() {
