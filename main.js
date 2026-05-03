@@ -24,7 +24,6 @@ function isVerticallyScrollable(el) {
     return el.scrollHeight > el.clientHeight + 2;
 }
 
-/** Evita trocar slide enquanto o usuário rola legenda, área do slide etc. */
 function wheelShouldChangeSlide(e) {
     let t = e.target;
     while (t && t !== document.documentElement) {
@@ -43,7 +42,6 @@ function wheelShouldChangeSlide(e) {
     return true;
 }
 
-// Navegação por Scroll e Teclas
 window.addEventListener(
     'wheel',
     (e) => {
@@ -59,7 +57,6 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
 });
 
-// Deslize horizontal no deck (não interfere com o carrossel do mock Instagram)
 (function initMainDeckSwipe() {
     if (!slider) return;
     let startX = 0;
@@ -95,7 +92,6 @@ window.addEventListener('keydown', (e) => {
     );
 })();
 
-// Carrossel Instagram: dots, arrastar, avanço/retrocesso sem loop no fim
 (function initInstaCarousel() {
     const instaSlidesEl = document.getElementById('instaSlides');
     const instaCarousel = document.getElementById('instaCarousel');

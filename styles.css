@@ -1,5 +1,4 @@
 :root {
-    /* Marca (solicitado) */
     --primary: #F2075D;
     --secondary: #BF0449;
     --dark-deep: #0D051A;
@@ -7,7 +6,6 @@
     --white: #FFFFFF;
     --gray: #262626;
     --accent-glow: rgba(242, 7, 93, 0.45);
-    /* Contraste: títulos um pouco mais claros sobre fundo escuro */
     --heading-color: #ff4d94;
     --text-bright: #faf7ff;
     --text-body: rgba(250, 247, 255, 0.94);
