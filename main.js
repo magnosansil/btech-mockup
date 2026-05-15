@@ -1,56 +1,46 @@
 let currentMainSlide = 0;
-const totalMainSlides = 9;
 const slider = document.getElementById('mainSlider');
-const dots = document.querySelectorAll('.dot-main');
 const slides = document.querySelectorAll('.main-slide');
+const totalMainSlides = slides.length;
+const dots = document.querySelectorAll('.dot-main');
+
+(function initNavDots() {
+    const nav = document.getElementById('mainNav');
+    if (!nav || nav.dataset.autodots !== 'true' || nav.children.length > 0) return;
+    for (let i = 0; i < totalMainSlides; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot-main' + (i === 0 ? ' active' : '');
+        dot.setAttribute('role', 'button');
+        dot.setAttribute('tabindex', '0');
+        dot.setAttribute('aria-label', `Slide ${i + 1}`);
+        dot.addEventListener('click', () => goToMainSlide(i));
+        nav.appendChild(dot);
+    }
+})();
 
 function goToMainSlide(index) {
     const i = Math.max(0, Math.min(totalMainSlides - 1, index));
     currentMainSlide = i;
-    slider.style.transform = `translateX(${-i * 100}%)`;
+    if (slider) slider.style.transform = `translateX(${-i * 100}%)`;
 
-    dots.forEach(d => d.classList.remove('active'));
-    if (dots[i]) dots[i].classList.add('active');
+    document.querySelectorAll('.dot-main').forEach((d, idx) => d.classList.toggle('active', idx === i));
 
     slides.forEach(s => s.classList.remove('active'));
-    if (slides[i]) {
-        slides[i].classList.add('active');
-        slides[i].scrollTop = 0;
+    const active = slides[i];
+    if (active) {
+        active.classList.add('active');
+        active.scrollTop = 0;
     }
-}
 
-function isVerticallyScrollable(el) {
-    if (!el || !(el instanceof Element)) return false;
-    return el.scrollHeight > el.clientHeight + 2;
-}
-
-function wheelShouldChangeSlide(e) {
-    let t = e.target;
-    while (t && t !== document.documentElement) {
-        if (t.classList && t.classList.contains('caption-scroll') && isVerticallyScrollable(t)) {
-            const top = t.scrollTop <= 0;
-            const bot = t.scrollTop + t.clientHeight >= t.scrollHeight - 2;
-            if ((e.deltaY < 0 && !top) || (e.deltaY > 0 && !bot)) return false;
+    document.querySelectorAll('.mvp-video').forEach((video) => {
+        const onActive = active && active.contains(video);
+        if (onActive) {
+            video.play().catch(() => {});
+        } else {
+            video.pause();
         }
-        if (t.classList && t.classList.contains('main-slide') && isVerticallyScrollable(t)) {
-            const top = t.scrollTop <= 0;
-            const bot = t.scrollTop + t.clientHeight >= t.scrollHeight - 2;
-            if ((e.deltaY < 0 && !top) || (e.deltaY > 0 && !bot)) return false;
-        }
-        t = t.parentElement;
-    }
-    return true;
+    });
 }
-
-window.addEventListener(
-    'wheel',
-    (e) => {
-        if (!wheelShouldChangeSlide(e)) return;
-        if (e.deltaY > 0 && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
-        if (e.deltaY < 0 && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
-    },
-    { passive: true }
-);
 
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
@@ -67,7 +57,7 @@ window.addEventListener('keydown', (e) => {
     slider.addEventListener(
         'touchstart',
         (e) => {
-            if (e.target.closest && e.target.closest('.insta-carousel')) return;
+            if (e.target.closest && (e.target.closest('.insta-carousel') || e.target.closest('.iphone-16'))) return;
             const t = e.touches[0] || e.changedTouches[0];
             if (!t) return;
             startX = t.clientX;
@@ -79,7 +69,7 @@ window.addEventListener('keydown', (e) => {
     slider.addEventListener(
         'touchend',
         (e) => {
-            if (e.target.closest && e.target.closest('.insta-carousel')) return;
+            if (e.target.closest && (e.target.closest('.insta-carousel') || e.target.closest('.iphone-16'))) return;
             const t = e.changedTouches[0];
             const dx = t.clientX - startX;
             const dy = t.clientY - startY;
@@ -196,3 +186,5 @@ window.addEventListener('keydown', (e) => {
 
     goToInstaSlide(0);
 })();
+
+if (totalMainSlides > 0) goToMainSlide(0);

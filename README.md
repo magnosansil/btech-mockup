@@ -1,6 +1,11 @@
-# BTech Jr. — Mockup da campanha (Grupo 3)
+# BTech Jr. — Apresentações em slides
 
-Apresentação em slides (HTML + CSS + JS) da mini campanha de divulgação da BTech Jr.
+Apresentações em HTML + CSS + JS no mesmo template visual.
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `index.html` | Desafio Trainee — Engajamento & Integração |
+| `chave-facil.html` | Desafio Trainee — Gestão de Chaves (IFBA) |
 
 ## Como rodar
 
@@ -8,7 +13,7 @@ Não há dependências nem build. Basta abrir o site em um navegador.
 
 ### Opção 1 — Abrir o arquivo direto
 
-Abra `index.html` com duplo clique ou arraste o arquivo para o Chrome / Edge / Firefox.
+Abra `index.html` ou `chave-facil.html` com duplo clique ou arraste o arquivo para o Chrome / Edge / Firefox.
 
 ### Opção 2 — Servidor local (recomendado)
 
@@ -32,8 +37,7 @@ Acesse `http://localhost:8080`.
 
 ## Navegação
 
-- **Teclado:** setas esquerda / direita  
-- **Mouse:** roda do mouse (scroll vertical)  
+- **Teclado:** setas esquerda / direita (única forma de avançar/voltar slide)  
 - **Touch:** deslize horizontal no slide (fora do carrossel do mock do Instagram)  
 - **Pontos:** clique nos dots à direita (desktop) ou na barra inferior (mobile)
 
