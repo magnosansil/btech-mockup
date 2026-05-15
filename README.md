@@ -38,7 +38,8 @@ Acesse `http://localhost:8080`.
 ## Navegação
 
 - **Teclado:** setas esquerda / direita (única forma de avançar/voltar slide)  
-- **Touch:** deslize horizontal no slide (fora do carrossel do mock do Instagram)  
+- **Fluxogramas (`chave-facil.html`):** no slide, a figura usa quase a altura da tela com fundo claro; **clique** na figura ou **Z** abre visão ampliada; **Esc** ou clique no fundo fecha; trocar de slide também fecha.
+- **Touch:** deslize horizontal no slide (fora do carrossel Instagram, fluxogramas e mock iPhone — nesses elementos o deslize não troca slide)  
 - **Pontos:** clique nos dots à direita (desktop) ou na barra inferior (mobile)
 
 ## Estrutura

@@ -18,6 +18,63 @@ const dots = document.querySelectorAll('.dot-main');
     }
 })();
 
+function closeFlowchartZoom() {
+    const frame = document.querySelector('.flowchart-frame--zoomable.is-flowchart-expanded');
+    const placeholder = document.getElementById('flowchartZoomPlaceholder');
+    if (frame) {
+        frame.classList.remove('is-flowchart-expanded');
+        if (placeholder && placeholder.parentNode) {
+            placeholder.parentNode.insertBefore(frame, placeholder);
+            placeholder.remove();
+        }
+    }
+    const bd = document.getElementById('flowchartZoomBackdrop');
+    if (bd) bd.classList.remove('is-visible');
+}
+
+function openFlowchartZoom(frame) {
+    closeFlowchartZoom();
+    let bd = document.getElementById('flowchartZoomBackdrop');
+    if (!bd) {
+        bd = document.createElement('div');
+        bd.id = 'flowchartZoomBackdrop';
+        bd.className = 'flowchart-zoom-backdrop';
+        bd.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(bd);
+        bd.addEventListener('click', closeFlowchartZoom);
+    }
+    const placeholder = document.createElement('div');
+    placeholder.id = 'flowchartZoomPlaceholder';
+    placeholder.setAttribute('aria-hidden', 'true');
+    frame.parentNode.insertBefore(placeholder, frame);
+    document.body.appendChild(frame);
+    frame.classList.add('is-flowchart-expanded');
+    bd.classList.add('is-visible');
+}
+
+function toggleFlowchartZoom(frame) {
+    if (frame.classList.contains('is-flowchart-expanded')) closeFlowchartZoom();
+    else openFlowchartZoom(frame);
+}
+
+(function initFlowchartPresentZoom() {
+    document.querySelectorAll('.flowchart-frame--zoomable').forEach((frame) => {
+        frame.setAttribute('tabindex', '0');
+        frame.setAttribute('role', 'button');
+        frame.setAttribute('aria-label', 'Ampliar ou fechar fluxograma em tela cheia');
+        frame.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleFlowchartZoom(frame);
+        });
+        frame.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFlowchartZoom(frame);
+            }
+        });
+    });
+})();
+
 function goToMainSlide(index) {
     const i = Math.max(0, Math.min(totalMainSlides - 1, index));
     currentMainSlide = i;
@@ -40,9 +97,37 @@ function goToMainSlide(index) {
             video.pause();
         }
     });
+
+    closeFlowchartZoom();
 }
 
 window.addEventListener('keydown', (e) => {
+    const fcExpanded = document.querySelector('.flowchart-frame--zoomable.is-flowchart-expanded');
+    const tag = e.target && e.target.tagName;
+    const typing =
+        tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (e.target && e.target.isContentEditable);
+
+    if (fcExpanded && e.key === 'Escape') {
+        e.preventDefault();
+        closeFlowchartZoom();
+        return;
+    }
+    if (fcExpanded && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+        e.preventDefault();
+        return;
+    }
+    if ((e.key === 'z' || e.key === 'Z') && !e.ctrlKey && !e.metaKey && !e.altKey && !typing) {
+        const active = slides[currentMainSlide];
+        const frame = active && active.querySelector('.flowchart-frame--zoomable');
+        if (frame) {
+            e.preventDefault();
+            toggleFlowchartZoom(frame);
+            return;
+        }
+    }
+
+    if (document.querySelector('.flowchart-frame--zoomable.is-flowchart-expanded')) return;
+
     if (e.key === 'ArrowRight' && currentMainSlide < totalMainSlides - 1) goToMainSlide(currentMainSlide + 1);
     if (e.key === 'ArrowLeft' && currentMainSlide > 0) goToMainSlide(currentMainSlide - 1);
 });
@@ -57,7 +142,13 @@ window.addEventListener('keydown', (e) => {
     slider.addEventListener(
         'touchstart',
         (e) => {
-            if (e.target.closest && (e.target.closest('.insta-carousel') || e.target.closest('.iphone-16'))) return;
+            if (
+                e.target.closest &&
+                (e.target.closest('.insta-carousel') ||
+                    e.target.closest('.iphone-16') ||
+                    e.target.closest('.flowchart-frame--zoomable'))
+            )
+                return;
             const t = e.touches[0] || e.changedTouches[0];
             if (!t) return;
             startX = t.clientX;
@@ -69,7 +160,13 @@ window.addEventListener('keydown', (e) => {
     slider.addEventListener(
         'touchend',
         (e) => {
-            if (e.target.closest && (e.target.closest('.insta-carousel') || e.target.closest('.iphone-16'))) return;
+            if (
+                e.target.closest &&
+                (e.target.closest('.insta-carousel') ||
+                    e.target.closest('.iphone-16') ||
+                    e.target.closest('.flowchart-frame--zoomable'))
+            )
+                return;
             const t = e.changedTouches[0];
             const dx = t.clientX - startX;
             const dy = t.clientY - startY;
